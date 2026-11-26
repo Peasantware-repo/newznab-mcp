@@ -1,0 +1,12 @@
+[
+  {
+    "name": "nzbfinder",
+    "base_url": "https://nzbfinder.ws/api",
+    "api_key_env": "NZBFINDER_API_KEY"
+  },
+  {
+    "name": "nzbgeek",
+    "base_url": "https://api.nzbgeek.info/api",
+    "api_key_env": "NZBGEEK_API_KEY"
+  }
+]

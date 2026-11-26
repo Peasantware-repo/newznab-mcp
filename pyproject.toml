@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "newznab-mcp"
+version = "0.1.0"
+description = "MCP stdio server that searches multiple Newznab usenet indexers in parallel"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Peasantware Labs" }]
+keywords = ["usenet", "newznab", "torznab", "nzb", "indexer", "mcp"]
+dependencies = ["mcp>=1.4"]
+
+[tool.setuptools]
+py-modules = ["newznab_mcp"]
+
+[project.scripts]
+newznab-mcp = "newznab_mcp:serve_mcp"
