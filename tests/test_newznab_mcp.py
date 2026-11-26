@@ -119,3 +119,31 @@ def test_load_indexers_from_env():
     assert [ix.name for ix in idxs] == ["a", "b"]
     assert idxs[0].api_key == "key-a"
     assert idxs[0].host == "a.test"
+
+
+def test_release_id_hex32_guid():
+    guid = "https://nzbgeek.info/geekseek.php?guid=001fa00a2be5013b701edd3ebfb3d638"
+    assert nz._release_id(guid) == "001fa00a2be5013b701edd3ebfb3d638"
+
+
+def test_parse_rss_custom_namespace():
+    """Some indexers (NZBGeek details) use a non-standard newznab namespace."""
+    xml = """<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:newznab="http://nzbgeek.info/feeds/attributes/">
+ <channel>
+  <title>api.nzbgeek.info</title>
+  <newznab:response offset="0" total="1"/>
+  <item>
+   <title>the.matrix.reloaded.2003.720p.web.h264-jff</title>
+   <guid>https://nzbgeek.info/geekseek.php?guid=001fa00a2be5013b701edd3ebfb3d638</guid>
+   <enclosure url="x" length="5217467000" type="application/x-nzb"/>
+   <newznab:attr name="category" value="2040"/>
+   <newznab:attr name="guid" value="001fa00a2be5013b701edd3ebfb3d638"/>
+  </item>
+ </channel>
+</rss>"""
+    rss = nz._parse_rss(xml)
+    assert rss["total"] == 1
+    rel = rss["releases"][0]
+    assert rel["attrs"]["guid"] == "001fa00a2be5013b701edd3ebfb3d638"
+    assert rel["attrs"]["category"] == "2040"

@@ -51,6 +51,7 @@ _UA = "newznab-mcp/0.1"
 _UUID_RE = re.compile(
     r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
 )
+_HEX32_RE = re.compile(r"\b[0-9a-fA-F]{32}\b")
 
 # Friendly operation name -> caps "searching" key, and the API `t=` value.
 _CAPS_KEY = {
@@ -146,7 +147,7 @@ def _parse_rss(text: str) -> dict:
     if channel is None:
         raise IndexerError(_error_text(text))
     out: dict = {"total": None, "offset": None, "releases": []}
-    resp = channel.find(f"{_NZ}response")
+    resp = channel.find("{*}response")
     if resp is not None:
         try:
             out["total"] = int(resp.get("total", 0))
@@ -168,7 +169,7 @@ def _parse_rss(text: str) -> dict:
             length = enc.get("length")
             if length is not None and length.isdigit():
                 r["size"] = int(length)
-        for a in item.findall(f"{_NZ}attr"):
+        for a in item.findall("{*}attr"):
             r["attrs"][a.get("name")] = a.get("value")
         out["releases"].append(r)
     return out
@@ -218,9 +219,13 @@ class Indexer:
 # --------------------------------------------------------------------------- search
 
 def _release_id(value: str) -> str:
-    """A release's UUID, whether handed a bare id or the details guid URL."""
+    """A release's id: a UUID (NZBFinder) or 32-hex guid (NZBGeek), from a bare id or
+    the details guid URL."""
     value = (value or "").strip()
     m = _UUID_RE.search(value)
+    if m:
+        return m.group(0)
+    m = _HEX32_RE.search(value)
     return m.group(0) if m else value
 
 
